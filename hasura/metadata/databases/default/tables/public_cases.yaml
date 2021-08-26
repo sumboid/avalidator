@@ -1,0 +1,10 @@
+table:
+  name: cases
+  schema: public
+object_relationships:
+- name: taskByTask
+  using:
+    foreign_key_constraint_on: task
+- name: user
+  using:
+    foreign_key_constraint_on: created_by

@@ -1,0 +1,30 @@
+table:
+  name: assignments
+  schema: public
+object_relationships:
+- name: taskByTask
+  using:
+    foreign_key_constraint_on: task
+- name: userByUser
+  using:
+    foreign_key_constraint_on: user
+array_relationships:
+- name: solutions
+  using:
+    foreign_key_constraint_on:
+      column: assignment
+      table:
+        name: solutions
+        schema: public
+select_permissions:
+- permission:
+    allow_aggregations: true
+    columns:
+    - user
+    - task
+    - due_to
+    - id
+    filter:
+      user:
+        _ne: X-Hasura-User-Id
+  role: student

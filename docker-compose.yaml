@@ -1,0 +1,96 @@
+version: '3.6'
+services:
+  postgres:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: "redis:6-alpine"
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  minio:
+    image: minio/minio
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-MINIO_SECRET_KEY}
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  hasura:
+    image: hasura/graphql-engine:latest.cli-migrations-v3
+    ports:
+    - "9999:8080"
+    depends_on:
+    - "postgres"
+    restart: always
+    environment:
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      PG_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: startup, http-log, webhook-log, websocket-log, query-log
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_SECRET:-HASURA_SECRET}
+      HASURA_GRAPHQL_JWT_SECRET: '{"type": "HS512","key": "${JWT_SECRET:-JWT_SECRET}", "claims_format": "json"}'
+    volumes:
+      - ./hasura/migrations:/hasura-migrations
+      - ./hasura/metadata:/hasura-metadata
+
+  auth:
+    build:
+      context: "./api/auth"
+      dockerfile: Dockerfile
+    build: ./api/auth
+    environment:
+      - "GIN_MODE=release"
+      - "REDIS_HOST=redis"
+      - "GRAPHQL_URL=http://hasura:8080/v1/graphql"
+      - "GRAPHQL_SECRET=${HASURA_SECRET:-HASURA_SECRET}"
+      - "JWT_SECRET=${JWT_SECRET:-JWT_SECRET}"
+      - "JWT_REFRESH_TTL=10080"
+      - "JWT_AUTH_TTL=5"
+      - "AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID:-AUTH_GOOGLE_ID}"
+      - "AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET:-AUTH_GOOGLE_SECRET}"
+      - "AUTH_GOOGLE_REDIRECT_URL=${AUTH_GOOGLE_REDIRECT_URL:-AUTH_GOOGLE_REDIRECT_URL}"
+      - "REDIRECT_URL=${REDIRECT_URL:-REDIRECT_URL}"
+    depends_on:
+      - "redis"
+      - "hasura"
+
+  upload_file:
+    build:
+      context: "./api/upload-file"
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-MINIO_BUCKET}
+    volumes:
+      - "./backend-ng/api/upload-file:/go/src/lambda"
+    depends_on:
+      - "minio"
+
+  nginx:
+    build:
+      context: "./nginx"
+      dockerfile: "Dockerfile"
+    ports:
+      - "8080:80"
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

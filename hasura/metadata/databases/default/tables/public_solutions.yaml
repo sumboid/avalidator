@@ -1,0 +1,41 @@
+table:
+  name: solutions
+  schema: public
+object_relationships:
+- name: assignmentByAssignment
+  using:
+    foreign_key_constraint_on: assignment
+array_relationships:
+- name: results
+  using:
+    foreign_key_constraint_on:
+      column: solution
+      table:
+        name: results
+        schema: public
+insert_permissions:
+- permission:
+    backend_only: false
+    check:
+      assignmentByAssignment:
+        user:
+          _eq: X-Hasura-User-Id
+    columns:
+    - assets
+    - assignment
+    - id
+  role: student
+select_permissions:
+- permission:
+    allow_aggregations: true
+    columns:
+    - id
+    - created_at
+    - updated_at
+    - assignment
+    - assets
+    filter:
+      assignmentByAssignment:
+        user:
+          _eq: X-Hasura-User-Id
+  role: student

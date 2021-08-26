@@ -1,0 +1,8 @@
+FROM golang:1.17-alpine
+
+RUN apk add git
+RUN go get github.com/codegangsta/gin
+RUN mkdir -p /go/src/auth-service
+
+WORKDIR /go/src/auth-service
+CMD ["gin", "--port", "8080", "run", "main.go"]

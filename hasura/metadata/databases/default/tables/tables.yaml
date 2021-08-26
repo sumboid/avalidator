@@ -1,0 +1,6 @@
+- "!include public_assignments.yaml"
+- "!include public_cases.yaml"
+- "!include public_results.yaml"
+- "!include public_solutions.yaml"
+- "!include public_tasks.yaml"
+- "!include public_users.yaml"

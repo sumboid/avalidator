@@ -1,0 +1,22 @@
+table:
+  name: results
+  schema: public
+object_relationships:
+- name: solutionBySolution
+  using:
+    foreign_key_constraint_on: solution
+select_permissions:
+- permission:
+    allow_aggregations: true
+    columns:
+    - id
+    - created_at
+    - updated_at
+    - solution
+    - verdict
+    filter:
+      solutionBySolution:
+        assignmentByAssignment:
+          user:
+            _eq: X-Hasura-User-Id
+  role: student
