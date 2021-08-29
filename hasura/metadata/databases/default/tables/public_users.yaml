@@ -16,3 +16,26 @@ array_relationships:
       table:
         name: cases
         schema: public
+select_permissions:
+- permission:
+    columns:
+    - created_at
+    - email
+    - group
+    - id
+    - name
+    - updated_at
+    filter:
+      id:
+        _eq: X-Hasura-User-Id
+  role: student
+update_permissions:
+- permission:
+    check: null
+    columns:
+    - group
+    - name
+    filter:
+      id:
+        _eq: X-Hasura-User-Id
+  role: student
