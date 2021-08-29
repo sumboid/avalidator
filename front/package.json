@@ -23,7 +23,7 @@
     "webpack-dev-server": "^4.0.0"
   },
   "scripts": {
-    "start": "NODE_ENV=development webpack serve --open",
+    "start": "NODE_ENV=development SERVER_ORIGIN=http://localhost:8080 webpack serve --open",
     "build": "NODE_ENV=production webpack",
     "lint": "gts lint",
     "clean": "gts clean",
@@ -34,6 +34,8 @@
     "posttest": "yarn run lint"
   },
   "dependencies": {
+    "@apollo/client": "^3.4.10",
+    "graphql": "^15.5.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",

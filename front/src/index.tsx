@@ -1,17 +1,33 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Provider} from 'react-redux';
+import {Provider, useSelector} from 'react-redux';
+import {ApolloProvider} from '@apollo/client';
 
-import createStore from 'store';
+import createStore, {RootState} from 'store';
+import apolloClient from 'apollo/client';
+
+import IamPage from 'pages/iam/iam.page';
 
 import 'index.module.scss';
 
 document.body.innerHTML += '<div id="root"/>';
 
+const Root: React.FC = () => {
+  const token = useSelector((state: RootState) => state.auth.token);
+
+  return token ? (
+    <ApolloProvider client={apolloClient}>
+      <IamPage />
+    </ApolloProvider>
+  ) : (
+    <div>Token loading...</div>
+  );
+};
+
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={createStore()}>
-      Hello world!
+      <Root />
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')

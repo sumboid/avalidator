@@ -2,9 +2,11 @@ import {StateType} from 'typesafe-actions';
 import {combineReducers, createStore, applyMiddleware} from 'redux';
 import createSagaMiddleware from 'redux-saga';
 
+import authReducer from 'auth/auth.reducer';
 import rootSaga from 'saga';
 
 const rootReducer = combineReducers({
+  auth: authReducer,
 });
 
 export default () => {
@@ -18,4 +20,3 @@ export default () => {
 };
 
 export type RootState = StateType<typeof rootReducer>;
-

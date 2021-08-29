@@ -1,7 +1,9 @@
+/* eslint-disable node/no-unpublished-require */
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const {EnvironmentPlugin} = require('webpack');
 
 const SRC_PATH = path.resolve(__dirname, 'src');
 const DST_PATH = path.resolve(__dirname, 'dist');
@@ -16,8 +18,22 @@ module.exports = {
   },
   devtool: isDevelopment ? 'inline-source-map' : undefined,
   devServer: {
+    port: 8888,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+      'Access-Control-Allow-Headers':
+        'X-Requested-With, content-type, Authorization',
+    },
   },
   plugins: [
+    new EnvironmentPlugin(['NODE_ENV', 'SERVER_ORIGIN']),
     new MiniCssExtractPlugin({
       filename: isDevelopment ? '[name].css' : '[name].[fullhash].css',
       chunkFilename: isDevelopment ? '[id].css' : '[id].[fullhash].css',
