@@ -71,7 +71,7 @@ type hasuraClaimT struct {
 }
 
 type claimsT struct {
-	Hasura hasuraClaimT `json:"hasura"`
+	Hasura hasuraClaimT `json:"https://hasura.io/jwt/claims"`
 	jwt.StandardClaims
 }
 
