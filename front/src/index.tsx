@@ -6,8 +6,9 @@ import {ApolloProvider} from '@apollo/client';
 import createStore, {RootState} from 'store';
 import apolloClient from 'apollo/client';
 
-import IamPage from 'pages/iam/iam.page';
+import RootPage from 'pages/root/root.page';
 
+import '@fontsource/roboto';
 import 'index.module.scss';
 
 document.body.innerHTML += '<div id="root"/>';
@@ -17,7 +18,7 @@ const Root: React.FC = () => {
 
   return token ? (
     <ApolloProvider client={apolloClient}>
-      <IamPage />
+      <RootPage />
     </ApolloProvider>
   ) : (
     <div>Token loading...</div>
